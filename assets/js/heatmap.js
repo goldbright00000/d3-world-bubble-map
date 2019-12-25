@@ -1,16 +1,3 @@
-// set the dimensions and margins of the graph
-var margin = {top: 30, right: 30, bottom: 200, left: 300},
-    width = 900 - margin.left - margin.right,
-    height = 2000 - margin.top - margin.bottom;
-
-// append the svg object to the body of the page
-var heatmap_svg = d3.select("#my_dataviz")
-.append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-.append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
 function loadHeatMap(flights) {
     var data = [];
     var vars = [];
@@ -61,6 +48,23 @@ function loadHeatMap(flights) {
         })
     })
 
+    drawHeatMap(myGroups, myVars, heatmap_data);
+}
+
+function drawHeatMap(myGroups, myVars, heatmap_data) {
+    // set the dimensions and margins of the graph
+    var margin = {top: 30, right: 30, bottom: 200, left: 250},
+    width = 30 * myGroups.length - margin.left - margin.right,
+    height = 12 * myVars.length - margin.top - margin.bottom;
+
+    // append the svg object to the body of the page
+    var heatmap_svg = d3.select("#my_dataviz")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
     // Build X scales and axis:
     var x = d3.scaleBand()
         .range([ 0, width ])
@@ -75,7 +79,7 @@ function loadHeatMap(flights) {
             .attr("dy", ".15em")
             .attr("transform", "rotate(-65)");
 
-    // Build X scales and axis:
+    // Build y scales and axis:
     var y = d3.scaleBand()
         .range([ height, 0 ])
         .domain(myVars)
