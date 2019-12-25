@@ -1,0 +1,39 @@
+.land {
+    fill: #dddddd;
+    stroke: #fff;
+    stroke-opacity: 0.2;
+}
+
+.border {
+    fill: none;
+    stroke-width: 1px;
+}
+  
+.interior {
+    stroke: white;
+    stroke-opacity: 0.2;
+}
+  
+.exterior {
+    stroke: #bbbbbb;
+}
+  
+.airport-arc {
+    fill: none;
+}
+  
+.airport:hover .airport-arc {
+    stroke: #f00;
+}
+
+.airport:hover circle {
+    stroke: #f00;
+    fill: #f2a7a7 !important;
+}
+  
+.airport-cell {
+    fill: none;
+    stroke: #69b3a2;
+    stroke-opacity: 0.2;
+    pointer-events: all;
+}

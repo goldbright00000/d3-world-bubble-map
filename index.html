@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>World Map</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+	<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+	<div class="container" style="padding: 50px;">
+    <div style="text-align: center;">
+      <svg width="900" height="600">
+        <rect width="100%" height="100%" fill="#f8f8f8"/>
+        <g id="land"></g>
+        <g id="airports"></g>
+      </svg>
+    </div>
+    <div class="form-group" style="padding: 30px 70px;max-width: 300px;">
+      <label for="size_filter">Filter</label>
+      <select id="size_filter" class="form-control" onchange="sizeFilter()">
+        <option value="total_accounts">Total Accounts</option>
+        <option value="fb_accounts">FB Accounts</option>
+        <option value="fb_pages">FB Pages</option>
+        <option value="reachable_audience">Reachable Audience</option>
+        <option value="fb_pages_followers">FB Pages Followers</option>
+        <option value="fb_groups">FB Groups</option>
+        <option value="fb_groups_followers">FB Groups Followers</option>
+        <option value="ig_accounts">IG Accounts</option>
+        <option value="ig_followers">IG Followers</option>
+        <option value="budget_usd">Budget</option>
+      </select>
+    </div>
+	</div>
+</body>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/topojson.v1.min.js"></script>
+<script src="assets/js/script.js"></script>
+</html>
