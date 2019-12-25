@@ -28,7 +28,7 @@
 
 .airport:hover circle {
     stroke: #f00;
-    fill: #f2a7a7 !important;
+    fill-opacity: 1 !important;
 }
   
 .airport-cell {

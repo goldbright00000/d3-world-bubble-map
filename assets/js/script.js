@@ -29,6 +29,7 @@ function ready(error, world, countries, flights) {
     if (error) throw error;
 
     drawMap(world);
+    loadHeatMap(flights);
 
     var countryByName = d3.map(countries, function(d) { return d.name; });
 
@@ -130,10 +131,10 @@ function drwaLine(size_filter = 'total_accounts') {
             radius = radius > 2 ? radius : 2;
             return radius;
         })
-        .style("fill", "#fff" )
+        .style("fill", "#f8f8f8" )
         .attr("stroke", "#666" )
         .attr("stroke-width", 1)
-        .attr("fill-opacity", .4);
+        .attr("fill-opacity", .6);
 }
 
 function sizeFilter() {
