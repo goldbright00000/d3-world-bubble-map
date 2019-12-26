@@ -9,15 +9,18 @@
 	<link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-	<div class="container" style="padding: 50px;">
+	<div class="container" style="padding: 30px;">
     <div style="text-align: center;">
+      <div style="padding-bottom: 10px;">
+        <h2>Interactive Connection World Map</h2>
+      </div>
       <svg width="900" height="600">
         <rect width="100%" height="100%" fill="#f8f8f8"/>
         <g id="land"></g>
         <g id="airports"></g>
       </svg>
     </div>
-    <div class="form-group" style="padding: 30px 70px;max-width: 300px;">
+    <div class="form-group" style="padding: 20px 70px;max-width: 400px;">
       <label for="size_filter">Filter</label>
       <select id="size_filter" class="form-control" onchange="sizeFilter()">
         <option value="total_accounts">Total Accounts</option>
@@ -32,7 +35,11 @@
         <option value="budget_usd">Budget</option>
       </select>
     </div>
-    <div id="my_dataviz" style="text-align: center;"></div>
+    <div id="my_dataviz" style="text-align: center;">
+      <div>
+        <h2>Keywords Heatmap</h2>
+      </div>
+    </div>
 	</div>
 </body>
 

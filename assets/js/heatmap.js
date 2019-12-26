@@ -5,21 +5,21 @@ function loadHeatMap(flights) {
         var countries = flight.origin_countries.split(", ");
         var keywords = flight.keywords.split(", ");
         countries.forEach(country => {
-            var country_key = country.trim();
-            if (!data[country_key]) {
-                data[country_key] = [];
+            country = country.trim();
+            if (!data[country]) {
+                data[country] = [];
             }
             
             keywords.forEach(keyword => {
-                var keyword_key = keyword.trim();
-                if (!data[country_key][keyword_key]) {
-                    data[country_key][keyword_key] = 0;
+                keyword = keyword.trim();
+                if (!data[country][keyword]) {
+                    data[country][keyword] = 0;
                 }
-                data[country_key][keyword_key]++;
-                if (!vars[keyword_key]) {
-                    vars[keyword_key] = 0;
+                data[country][keyword]++;
+                if (!vars[keyword]) {
+                    vars[keyword] = 0;
                 }
-                vars[keyword_key]++;
+                vars[keyword]++;
             })
         })
     });
@@ -108,8 +108,8 @@ function drawHeatMap(myGroups, myVars, heatmap_data) {
         tooltip.style("opacity", 1)
     }
     var mousemove = function(d) {
-        var left = d3.mouse(this)[0]+20+$('#my_dataviz').offset().left+margin.left;
-        var top = d3.mouse(this)[1]-20+$('#my_dataviz').offset().top+margin.top;
+        var left = d3.mouse(this)[0]+20+$('#my_dataviz svg').offset().left+margin.left;
+        var top = d3.mouse(this)[1]-20+$('#my_dataviz svg').offset().top+margin.top;
         tooltip
             .html(`Origin Country : ${d.group} <br> Keyword : ${d.variable} <br> Value : ${d.value}`)
             .style("left", (left) + "px")

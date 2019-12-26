@@ -2,6 +2,32 @@ var svg = d3.select("svg"),
     width = +svg.attr("width"),
     height = +svg.attr("height");
 
+var radius_weights = {
+    total_accounts : 100,
+    fb_accounts : 50,
+    fb_pages : 100,
+    reachable_audience : 2000000,
+    fb_pages_followers : 2000000,
+    fb_groups : 100,
+    fb_groups_followers : 100000,
+    ig_accounts : 10,
+    ig_followers : 10000,
+    budget_usd : 200000
+}
+
+var labels = {
+    total_accounts : 'Total Accounts',
+    fb_accounts : 'FB Accounts',
+    fb_pages : 'FB Pages',
+    reachable_audience : 'Reachable Audience',
+    fb_pages_followers : 'FB Pages Followers',
+    fb_groups : 'FB Groups',
+    fb_groups_followers : 'FB Grpups Followers',
+    ig_accounts : 'IG Accounts',
+    ig_followers : 'IG Followers',
+    budget_usd : 'Budget'
+}
+
 var projection = d3.geoMercator()
     .scale(125)
     .translate([width/2, height/2*1.3])
@@ -38,11 +64,15 @@ function ready(error, world, countries, flights) {
         var origins = flight.origin_countries.split(", ");
         var targets = flight.target_countries.split(", ");
         origins.forEach(origin => {
+            origin = origin.trim();
             if (origin == 'UK' || origin == 'the UK') origin = 'United Kingdom';
             if (origin == 'US' || origin == 'USA') origin = 'United States';
+            if (origin == 'UAE') origin = 'United Arab Emirates';
             targets.forEach(target => {
+                target = target.trim();
                 if (target == 'UK' || target == 'the UK') target = 'United Kingdom';
                 if (target == 'US' || target == 'USA') target = 'United States';
+                if (target == 'UAE') target = 'United Arab Emirates';
                 parsed_flights.push({
                     origin: origin,
                     target: target,
@@ -56,12 +86,12 @@ function ready(error, world, countries, flights) {
         var source = countryByName.get(flight.origin),
             target = countryByName.get(flight.target);
         if (source && target) {
-            if (source.name != target.name) {
+            // if (source.name != target.name) {
                 source.arcs.coordinates.push([source, target]);
-                target.arcs.coordinates.push([target, source]);
+                // target.arcs.coordinates.push([target, source]);
                 source.flights.push(flight.flight);
-                target.flights.push(flight.flight);
-            }
+                // target.flights.push(flight.flight);
+            // }
         }
     });
 
@@ -107,9 +137,6 @@ function drwaLine(size_filter = 'total_accounts') {
         .enter().append("g")
         .attr("class", "airport");
 
-    airport.append("title")
-        .text(d => d.name + "\n" + d.arcs.coordinates.length + " flights");
-
     airport.append("path")
         .attr("class", "airport-arc")
         .attr("d", d => path(d.arcs));
@@ -124,17 +151,29 @@ function drwaLine(size_filter = 'total_accounts') {
         .attr("cy", d => projection([d.longitude, d.latitude])[1])
         .attr("r", d => {
             var radius = 0;
+            var former_size = 0;
+            var val = 0;
             d.flights.forEach(flight => {
-                radius += parseInt(flight[size_filter]);
+                val = parseInt(flight[size_filter].replace(/\D/g,''));
+                if (former_size == val) {
+                    return;
+                } else {
+                    radius += val;
+                    former_size = val;
+                }
             })
-            radius /= 200;
-            radius = radius > 2 ? radius : 2;
+            d[size_filter] = radius;
+            radius /= radius_weights[size_filter];
+            radius = radius > 2.5 ? radius : 2.5;
             return radius;
         })
         .style("fill", "#f8f8f8" )
         .attr("stroke", "#666" )
         .attr("stroke-width", 1)
         .attr("fill-opacity", .6);
+
+    airport.append("title")
+        .text(d => `Origin Country : ${d.name}\nFlights : ${d.arcs.coordinates.length}\n${labels[size_filter]} : ${d[size_filter]}`);
 }
 
 function sizeFilter() {
