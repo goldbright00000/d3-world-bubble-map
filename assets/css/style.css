@@ -1,7 +1,8 @@
 .land {
     fill: #dddddd;
     stroke: #fff;
-    stroke-opacity: 0.2;
+    stroke-opacity: 1;
+    stroke-width: 0.5px;
 }
 
 .border {
@@ -33,7 +34,5 @@
   
 .airport-cell {
     fill: none;
-    stroke: #69b3a2;
-    stroke-opacity: 0.2;
     pointer-events: all;
 }

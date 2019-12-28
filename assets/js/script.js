@@ -2,19 +2,6 @@ var svg = d3.select("svg"),
     width = +svg.attr("width"),
     height = +svg.attr("height");
 
-var radius_weights = {
-    total_accounts : 100,
-    fb_accounts : 50,
-    fb_pages : 100,
-    reachable_audience : 2000000,
-    fb_pages_followers : 2000000,
-    fb_groups : 100,
-    fb_groups_followers : 100000,
-    ig_accounts : 10,
-    ig_followers : 10000,
-    budget_usd : 200000
-}
-
 var labels = {
     total_accounts : 'Total Accounts',
     fb_accounts : 'FB Accounts',
@@ -29,8 +16,8 @@ var labels = {
 }
 
 var projection = d3.geoMercator()
-    .scale(125)
-    .translate([width/2, height/2*1.3])
+    .scale(145)
+    .translate([width/2, height/2*1.4])
 
 var radius = d3.scaleSqrt()
     .domain([0, 100])
@@ -43,21 +30,36 @@ var path = d3.geoPath()
 var voronoi = d3.voronoi()
     .extent([[-1, -1], [width + 1, height + 1]]);
 
-var flight_countries;
+var color = d3.scaleThreshold()
+    .domain([1,10,100,1000,5000,10000,500000,1000000,100000000,5000000000])
+    .range(["rgb(247,251,255)", "rgb(222,235,247)", "rgb(198,219,239)", "rgb(158,202,225)", "rgb(107,174,214)", "rgb(66,146,198)","rgb(33,113,181)","rgb(8,81,156)","rgb(8,48,107)","rgb(3,19,43)"]);
+
+const zoom = d3.zoom()
+    .scaleExtent([1, 10])
+    .translateExtent([[0,0], [width, height]])
+    .extent([[0, 0], [width, height]])
+    .on("zoom", zoomed);
+
+svg.call(zoom);
+
+var flight_countries,
+    world_map_data,
+    country_codes;
+
 
 d3.queue()
-    .defer(d3.json, "assets/json/world-50m.json")
+    .defer(d3.json, "assets/json/world-countries.json")
     .defer(d3.csv, "assets/csv/countries.csv", typeCountries)
-    .defer(d3.csv, "assets/csv/flightciv.csv")
+    .defer(d3.csv, "assets/csv/CIB_dec27.csv")
+    .defer(d3.json, "assets/json/country-codes.json")
     .await(ready);
 
-function ready(error, world, countries, flights) {
+function ready(error, world, countries, flights, codes) {
     if (error) throw error;
 
-    drawMap(world);
-    loadHeatMap(flights);
-
-    var countryByName = d3.map(countries, function(d) { return d.name; });
+    world_map_data = world;
+    country_codes = codes.features;
+    var countryByName = d3.map(countries, d => d.name);
 
     var parsed_flights = [];
     flights.forEach(flight => {
@@ -96,7 +98,13 @@ function ready(error, world, countries, flights) {
     });
 
     flight_countries = countries.filter(d => d.arcs.coordinates.length);
+
+    getFlightData('total_accounts');
+    getFlightData('budget_usd');
+    drawMap();
     drwaLine();
+    drawBudgetChart(flight_countries);
+    loadHeatMap(flights);
 }
 
 function typeCountries(d) {
@@ -110,28 +118,45 @@ function typeCountries(d) {
     return d;
 }
 
-function drawMap(map) {
+function drawMap(size_filter = 'total_accounts') {
+    var dataByCountry = [];
+    flight_countries.forEach(d => {
+        dataByCountry[d.country] = d[size_filter];
+    })
+
     // draw base map
-    svg.select("g#land").append("path")
-        .datum(topojson.feature(map, map.objects.countries))
+    svg.select("g#land")
         .attr("class", "land")
-        .attr("d", path);
-  
-    // draw interior borders
-    svg.select("g#land").append("path")
-        .datum(topojson.mesh(map, map.objects.countries, (a, b) => a !== b))
-        .attr("class", "border interior")
-        .attr("d", path);
-  
-    // draw exterior borders
-    svg.select("g#land").append("path")
-        .datum(topojson.mesh(map, map.objects.countries, (a, b) => a === b))
-        .attr("class", "border exterior")
-        .attr("d", path);
+        .selectAll("path")
+        .data(world_map_data.features)
+        .enter().append("path")
+        .attr("d", path)
+        .style("fill", d => {
+            var key = country_codes[d.id];
+            return color(dataByCountry[key] ? dataByCountry[key] : 1);
+        })
+}
+
+function getFlightData(size_filter = 'total_accounts') {
+    flight_countries.forEach(d => {
+        var amount = 0;
+        var former_size = 0;
+        var val = 0;
+        d.flights.forEach(flight => {
+            if (!flight[size_filter]) return;
+            val = parseInt(flight[size_filter].replace(/\D/g,''));
+            if (former_size == val) {
+                return;
+            } else {
+                amount += val;
+                former_size = val;
+            }
+        })
+        d[size_filter] = amount;
+    })
 }
 
 function drwaLine(size_filter = 'total_accounts') {
-    document.getElementById("airports").innerHTML = "";
     var airport = svg.select("g#airports").selectAll(".airport")
         .data(flight_countries)
         .enter().append("g")
@@ -149,34 +174,38 @@ function drwaLine(size_filter = 'total_accounts') {
     airport.append("circle")
         .attr("cx", d => projection([d.longitude, d.latitude])[0])
         .attr("cy", d => projection([d.longitude, d.latitude])[1])
-        .attr("r", d => {
-            var radius = 0;
-            var former_size = 0;
-            var val = 0;
-            d.flights.forEach(flight => {
-                val = parseInt(flight[size_filter].replace(/\D/g,''));
-                if (former_size == val) {
-                    return;
-                } else {
-                    radius += val;
-                    former_size = val;
-                }
-            })
-            d[size_filter] = radius;
-            radius /= radius_weights[size_filter];
-            radius = radius > 2.5 ? radius : 2.5;
-            return radius;
-        })
-        .style("fill", "#f8f8f8" )
-        .attr("stroke", "#666" )
+        .attr("r", 3)
+        .style("fill", "#fff")
+        .attr("stroke", "#333")
         .attr("stroke-width", 1)
-        .attr("fill-opacity", .6);
 
     airport.append("title")
-        .text(d => `Origin Country : ${d.name}\nFlights : ${d.arcs.coordinates.length}\n${labels[size_filter]} : ${d[size_filter]}`);
+        .text(d => `Origin Country : ${d.name}\nFlights : ${d.arcs.coordinates.length}\n${labels[size_filter]} : ${d[size_filter]}\nBudget: ${d.budget_usd}`);
 }
 
 function sizeFilter() {
     var size_filter = document.getElementById("size_filter").value;
-    drwaLine(size_filter);
+    getFlightData(size_filter);
+
+
+    var dataByCountry = [];
+    flight_countries.forEach(d => {
+        dataByCountry[d.country] = d[size_filter];
+    })
+    svg.select("g#land")
+        .selectAll("path")
+        .style("fill", d => {
+            var key = country_codes[d.id];
+            return color(dataByCountry[key] ? dataByCountry[key] : 1);
+        })
+
+    svg.select("g#airports").selectAll(".airport").select("title")
+    .text(d => `Origin Country : ${d.name}\nFlights : ${d.arcs.coordinates.length}\n${labels[size_filter]} : ${d[size_filter]}\nBudget: ${d.budget_usd}`);
+}
+
+function zoomed() {
+    svg.select("g#land")
+        .attr('transform', d3.event.transform);
+    svg.select("g#airports")
+        .attr('transform', d3.event.transform);
 }

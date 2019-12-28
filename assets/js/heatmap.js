@@ -53,12 +53,12 @@ function loadHeatMap(flights) {
 
 function drawHeatMap(myGroups, myVars, heatmap_data) {
     // set the dimensions and margins of the graph
-    var margin = {top: 30, right: 30, bottom: 200, left: 250},
+    var margin = {top: 30, right: 30, bottom: 150, left: 200},
     width = 30 * myGroups.length - margin.left - margin.right,
-    height = 12 * myVars.length - margin.top - margin.bottom;
+    height = 15 * myVars.length - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
-    var heatmap_svg = d3.select("#my_dataviz")
+    var heatmap_svg = d3.select("#heatmap")
         .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
@@ -93,7 +93,7 @@ function drawHeatMap(myGroups, myVars, heatmap_data) {
         .domain([0,2])
 
     // create a tooltip
-    var tooltip = d3.select("#my_dataviz")
+    var tooltip = d3.select("#heatmap")
         .append("div")
         .style("opacity", 0)
         .attr("class", "tooltip")
@@ -108,8 +108,8 @@ function drawHeatMap(myGroups, myVars, heatmap_data) {
         tooltip.style("opacity", 1)
     }
     var mousemove = function(d) {
-        var left = d3.mouse(this)[0]+20+$('#my_dataviz svg').offset().left+margin.left;
-        var top = d3.mouse(this)[1]-20+$('#my_dataviz svg').offset().top+margin.top;
+        var left = d3.mouse(this)[0]+20+$('#heatmap svg').offset().left+margin.left;
+        var top = d3.mouse(this)[1]-20+$('#heatmap svg').offset().top+margin.top;
         tooltip
             .html(`Origin Country : ${d.group} <br> Keyword : ${d.variable} <br> Value : ${d.value}`)
             .style("left", (left) + "px")

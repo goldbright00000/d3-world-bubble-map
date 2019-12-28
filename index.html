@@ -11,7 +11,7 @@
 <body>
 	<div class="container" style="padding: 30px;">
     <div style="text-align: center;">
-      <div style="padding-bottom: 10px;">
+      <div style="padding-bottom: 20px;">
         <h2>Interactive Connection World Map</h2>
       </div>
       <svg width="900" height="600">
@@ -32,10 +32,15 @@
         <option value="fb_groups_followers">FB Groups Followers</option>
         <option value="ig_accounts">IG Accounts</option>
         <option value="ig_followers">IG Followers</option>
-        <option value="budget_usd">Budget</option>
       </select>
     </div>
-    <div id="my_dataviz" style="text-align: center;">
+    <div id="lollipop" style="text-align: center;padding: 30px;">
+      <div>
+        <h2>Budget Chart</h2>
+      </div>
+    </div>
+
+    <div id="heatmap" style="text-align: center;">
       <div>
         <h2>Keywords Heatmap</h2>
       </div>
@@ -47,5 +52,6 @@
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/topojson.v1.min.js"></script>
 <script src="assets/js/script.js"></script>
+<script src="assets/js/lollipop.js"></script>
 <script src="assets/js/heatmap.js"></script>
 </html>
